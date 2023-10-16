@@ -7,8 +7,8 @@ using namespace std;
 
 struct Process {
     int arrivalTime;
-    int priority;
     int cpuBurst;
+    int priority;
 };
 
 enum SchedulingType {
@@ -19,6 +19,8 @@ enum SchedulingType {
 
 
 int main() {
+
+    system("pwd");
     ifstream inputFile("Datafile1.txt");
 
     if (!inputFile) {
@@ -28,11 +30,24 @@ int main() {
 
     queue<Process> processes;
     Process process;
-    while (inputFile >> process.arrivalTime >> process.priority >> process.cpuBurst) {
+    int numberOfProcesses = 0; 
+    while (inputFile >> process.arrivalTime >> process.cpuBurst >> process.priority ) {
         processes.push(process);
+        numberOfProcesses++;
     }
 
-    
+    inputFile.close(); 
+
+    while (!processes.empty()) {
+        Process frontProcess = processes.front();
+        processes.pop();
+
+        cout << "Arrival Time: " << frontProcess.arrivalTime
+             << ", CPU Burst: " << frontProcess.cpuBurst
+             << ", Priority: " << frontProcess.priority << endl;
+    }
+
+    cout << "Number Processes: " << numberOfProcesses << endl;
    
     return 0;
 }
