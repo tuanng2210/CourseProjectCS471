@@ -6,10 +6,9 @@
 using namespace std;
 
 struct Process {
-    int id;
     int arrivalTime;
-    int priority;
     int cpuBurst;
+    int priority;
 };
 
 enum SchedulingType {
@@ -20,19 +19,35 @@ enum SchedulingType {
 
 
 int main() {
-    ifstream inputFile("Datafile1-txt.txt");
+
+    system("pwd");
+    ifstream inputFile("Datafile1.txt");
 
     if (!inputFile) {
         cerr << "Error opening input file." << endl;
         return 1;
     }
 
-    vector<Process> processes;
+    queue<Process> processes;
     Process process;
-    while (inputFile >> process.id >> process.arrivalTime >> process.priority >> process.cpuBurst) {
-        processes.push_back(process);
+    int numberOfProcesses = 0; 
+    while (inputFile >> process.arrivalTime >> process.cpuBurst >> process.priority ) {
+        processes.push(process);
+        numberOfProcesses++;
     }
-    
+
+    inputFile.close(); 
+
+    while (!processes.empty()) {
+        Process frontProcess = processes.front();
+        processes.pop();
+
+        cout << "Arrival Time: " << frontProcess.arrivalTime
+             << ", CPU Burst: " << frontProcess.cpuBurst
+             << ", Priority: " << frontProcess.priority << endl;
+    }
+
+    cout << "Number Processes: " << numberOfProcesses << endl;
    
     return 0;
 }
