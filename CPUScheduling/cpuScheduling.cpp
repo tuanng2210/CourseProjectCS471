@@ -19,10 +19,7 @@ enum SchedulingType {
 
 
 int main() {
-
-    system("pwd");
     ifstream inputFile("Datafile1.txt");
-    
 
     if (!inputFile) {
         cerr << "Error opening input file." << endl;
