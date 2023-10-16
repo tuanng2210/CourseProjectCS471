@@ -20,7 +20,7 @@ enum SchedulingType {
 
 
 int main() {
-    ifstream inputFile("Datafile1-txt.txt");
+    ifstream inputFile("Datafile1.txt");
 
     if (!inputFile) {
         cerr << "Error opening input file." << endl;
@@ -32,6 +32,7 @@ int main() {
     while (inputFile >> process.id >> process.arrivalTime >> process.priority >> process.cpuBurst) {
         processes.push(process);
     }
+
     
    
     return 0;
