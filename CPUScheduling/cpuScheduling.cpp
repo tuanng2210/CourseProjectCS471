@@ -6,7 +6,6 @@
 using namespace std;
 
 struct Process {
-    int id;
     int arrivalTime;
     int priority;
     int cpuBurst;
@@ -29,7 +28,7 @@ int main() {
 
     queue<Process> processes;
     Process process;
-    while (inputFile >> process.id >> process.arrivalTime >> process.priority >> process.cpuBurst) {
+    while (inputFile >> process.arrivalTime >> process.priority >> process.cpuBurst) {
         processes.push(process);
     }
 
