@@ -27,10 +27,10 @@ int main() {
         return 1;
     }
 
-    vector<Process> processes;
+    queue<Process> processes;
     Process process;
     while (inputFile >> process.id >> process.arrivalTime >> process.priority >> process.cpuBurst) {
-        processes.push_back(process);
+        processes.push(process);
     }
     
    
