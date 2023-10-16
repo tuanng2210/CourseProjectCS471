@@ -6,6 +6,7 @@
 using namespace std;
 
 struct Process {
+    int processId;
     int arrivalTime;
     int cpuBurst;
     int priority;
@@ -32,12 +33,14 @@ int main() {
     string header;
     getline(inputFile, header);
 
+
     queue<Process> processes;
     Process process;
-    int numberOfProcesses = 0; 
+    int id = 1; 
     while (inputFile >> process.arrivalTime >> process.cpuBurst >> process.priority ) {
+        process.processId = id;
         processes.push(process);
-        numberOfProcesses++;
+        id++;
     }
 
     inputFile.close(); 
@@ -46,12 +49,11 @@ int main() {
         Process frontProcess = processes.front();
         processes.pop();
 
-        cout << "Arrival Time: " << frontProcess.arrivalTime
+        cout << "Process ID: " << frontProcess.processId
+             << ", Arrival Time: " << frontProcess.arrivalTime
              << ", CPU Burst: " << frontProcess.cpuBurst
              << ", Priority: " << frontProcess.priority << endl;
     }
-
-    cout << "Number Processes: " << numberOfProcesses << endl;
    
     return 0;
 }
