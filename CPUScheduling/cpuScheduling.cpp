@@ -22,11 +22,15 @@ int main() {
 
     system("pwd");
     ifstream inputFile("Datafile1.txt");
+    
 
     if (!inputFile) {
         cerr << "Error opening input file." << endl;
         return 1;
     }
+
+    string header;
+    getline(inputFile, header);
 
     queue<Process> processes;
     Process process;
