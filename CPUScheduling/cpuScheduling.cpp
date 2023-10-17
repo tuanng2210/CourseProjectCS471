@@ -11,14 +11,17 @@ struct Process
     int arrivalTime;
     int cpuBurst;
     int priority;
+    int remainingBurst; // To keep track of remaining burst time for SJF
+    int startTime;      // To calculate response time
+    int endTime;
 };
 
-enum SchedulingType
-{
-    FIFO,
-    SJF,
-    Priority
-};
+// enum SchedulingType
+// {
+//     FIFO,
+//     SJF,
+//     Priority
+// };
 
 void runFIFO(queue<Process> &processes)
 {
@@ -27,10 +30,64 @@ void runFIFO(queue<Process> &processes)
     int totalTurnaroundTime = 0;
     int totalResponseTime = 0;
     int processesExecuted = 0;
+
+    while (!processes.empty() && processesExecuted < 500)
+    {
+        Process currentProcess = processes.front();
+        processes.pop();
+
+        // If the process arrives after the current time, update the current time
+        if (currentTime < currentProcess.arrivalTime)
+        {
+            currentTime = currentProcess.arrivalTime;
+        }
+
+        // Update start time, end time, waiting time, and turnaround time for the process
+        currentProcess.startTime = currentTime;
+        currentProcess.endTime = currentTime + currentProcess.cpuBurst;
+        totalWaitingTime += currentTime - currentProcess.arrivalTime;
+        totalTurnaroundTime += currentProcess.endTime - currentProcess.arrivalTime;
+        totalResponseTime += currentProcess.startTime - currentProcess.arrivalTime;
+
+        // Update current time to the end time of the current process
+        currentTime = currentProcess.endTime;
+
+        // Print information about the executed process
+        cout << "Process ID: " << currentProcess.processId
+             << ", Arrival Time: " << currentProcess.arrivalTime
+             << ", CPU Burst: " << currentProcess.cpuBurst
+             << ", Priority: " << currentProcess.priority << endl;
+
+        processesExecuted++;
+    }
+
+    // Calculate and print statistics
+    int totalProcesses = processesExecuted;
+    double throughput = static_cast<double>(totalProcesses) / currentTime;
+    double cpuUtilization = static_cast<double>(totalTurnaroundTime) / currentTime;
+    double avgWaitingTime = static_cast<double>(totalWaitingTime) / totalProcesses;
+    double avgTurnaroundTime = static_cast<double>(totalTurnaroundTime) / totalProcesses;
+    double avgResponseTime = static_cast<double>(totalResponseTime) / totalProcesses;
+
+    cout << "\nStatistics for the Run" << endl;
+    cout << "Number of processes: " << totalProcesses << endl;
+    cout << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    cout << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    cout << "CPU utilization: " << cpuUtilization << endl;
+    cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 }
+
+void runSJF(queue<Process> &processes)
+{
+}
+
+void runPriority(queue<Process> &processes) {}
 
 int main()
 {
+    queue<Process> processes;
     ifstream inputFile("Datafile1.txt");
 
     if (!inputFile)
@@ -38,33 +95,41 @@ int main()
         cerr << "Error opening input file." << endl;
         return 1;
     }
-
-    string header;
-    getline(inputFile, header);
-
-    queue<Process> processes;
-    Process process;
-    int id = 1;
-    while (inputFile >> process.arrivalTime >> process.cpuBurst >> process.priority)
+    else if (inputFile)
     {
-        process.processId = id;
-        processes.push(process);
-        id++;
+        string header;
+        getline(inputFile, header);
+
+        Process process;
+        int id = 1;
+        while (inputFile >> process.arrivalTime >> process.cpuBurst >> process.priority)
+        {
+            process.processId = id;
+            processes.push(process);
+            id++;
+        }
     }
 
     inputFile.close();
 
-    runFIFO(processes);
+    int schedulingType;
+    cout << "Enter scheduling type (1 for FIFO, 2 for SJF, 3 for Priority): ";
+    cin >> schedulingType;
 
-    while (!processes.empty())
+    switch (schedulingType)
     {
-        Process frontProcess = processes.front();
-        processes.pop();
-
-        cout << "Process ID: " << frontProcess.processId
-             << ", Arrival Time: " << frontProcess.arrivalTime
-             << ", CPU Burst: " << frontProcess.cpuBurst
-             << ", Priority: " << frontProcess.priority << endl;
+    case 1:
+        runFIFO(processes);
+        break;
+    case 2:
+        runSJF(processes);
+        break;
+    case 3:
+        runPriority(processes);
+        break;
+    default:
+        cout << "Invalid scheduling type." << endl;
+        return 1;
     }
 
     return 0;
