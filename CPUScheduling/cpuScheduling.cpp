@@ -86,13 +86,14 @@ void runSJF(queue<Process> &processes)
     int totalTurnaroundTime = 0;
     int totalResponseTime = 0;
     int processesExecuted = 0;
-
-    // Sort the processes based on burst time (SJF)
+    int processesToProcess = 0;
     vector<Process> sortedProcesses;
-    while (!processes.empty())
+
+    while (!processes.empty() && processesToProcess < 500)
     {
         sortedProcesses.push_back(processes.front());
         processes.pop();
+        processesToProcess++;
     }
 
     sort(sortedProcesses.begin(), sortedProcesses.end(), [](const Process &a, const Process &b)
