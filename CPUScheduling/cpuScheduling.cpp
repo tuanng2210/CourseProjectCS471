@@ -81,6 +81,74 @@ void runFIFO(queue<Process> &processes)
 
 void runSJF(queue<Process> &processes)
 {
+    int currentTime = 0;
+    int totalWaitingTime = 0;
+    int totalTurnaroundTime = 0;
+    int totalResponseTime = 0;
+    int processesExecuted = 0;
+
+    // Sort the processes based on burst time (SJF)
+    vector<Process> sortedProcesses;
+    while (!processes.empty())
+    {
+        sortedProcesses.push_back(processes.front());
+        processes.pop();
+    }
+
+    sort(sortedProcesses.begin(), sortedProcesses.end(), [](const Process &a, const Process &b)
+         {
+         if (a.cpuBurst == b.cpuBurst)
+         {
+             return a.arrivalTime < b.arrivalTime; // or a.processId < b.processId for a unique ID
+         }
+         return a.cpuBurst < b.cpuBurst; });
+
+    for (const auto &currentProcess : sortedProcesses)
+    {
+        // If the process arrives after the current time, update the current time
+        if (currentTime < currentProcess.arrivalTime)
+        {
+            currentTime = currentProcess.arrivalTime;
+        }
+
+        // Create a copy of currentProcess to modify its members
+        Process executingProcess = currentProcess;
+
+        // Update start time, end time, waiting time, and turnaround time for the process
+        executingProcess.startTime = currentTime;
+        executingProcess.endTime = currentTime + executingProcess.cpuBurst;
+        totalWaitingTime += currentTime - executingProcess.arrivalTime;
+        totalTurnaroundTime += executingProcess.endTime - executingProcess.arrivalTime;
+        totalResponseTime += executingProcess.startTime - executingProcess.arrivalTime;
+
+        // Update current time to the end time of the current process
+        currentTime = executingProcess.endTime;
+
+        // Print information about the executed process
+        cout << "Process ID: " << executingProcess.processId
+             << ", Arrival Time: " << executingProcess.arrivalTime
+             << ", CPU Burst: " << executingProcess.cpuBurst
+             << ", Priority: " << executingProcess.priority << endl;
+
+        processesExecuted++;
+    }
+
+    // Calculate and print statistics
+    int totalProcesses = processesExecuted;
+    double throughput = static_cast<double>(totalProcesses) / currentTime;
+    double cpuUtilization = static_cast<double>(totalTurnaroundTime) / currentTime;
+    double avgWaitingTime = static_cast<double>(totalWaitingTime) / totalProcesses;
+    double avgTurnaroundTime = static_cast<double>(totalTurnaroundTime) / totalProcesses;
+    double avgResponseTime = static_cast<double>(totalResponseTime) / totalProcesses;
+
+    cout << "\nStatistics for the Run" << endl;
+    cout << "Number of processes: " << totalProcesses << endl;
+    cout << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    cout << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    cout << "CPU utilization: " << cpuUtilization << endl;
+    cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 }
 
 void runPriority(queue<Process> &processes) {}
