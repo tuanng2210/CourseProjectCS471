@@ -86,15 +86,14 @@ void runSJF(queue<Process> &processes)
     int totalTurnaroundTime = 0;
     int totalResponseTime = 0;
     int processesExecuted = 0;
-    int maxProcesses = 500;
+    int processesToProcess = 0;
     vector<Process> sortedProcesses;
-    int processesToProcess = 500;
 
-    while (!processes.empty() && processesToProcess > 0)
+    while (!processes.empty() && processesToProcess < 500)
     {
         sortedProcesses.push_back(processes.front());
         processes.pop();
-        processesToProcess--;
+        processesToProcess++;
     }
 
     sort(sortedProcesses.begin(), sortedProcesses.end(), [](const Process &a, const Process &b)
