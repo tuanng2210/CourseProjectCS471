@@ -99,7 +99,7 @@ void runSJF(queue<Process> &processes)
          {
          if (a.cpuBurst == b.cpuBurst)
          {
-             return a.arrivalTime < b.arrivalTime; // or a.processId < b.processId for a unique ID
+             return a.arrivalTime < b.arrivalTime; 
          }
          return a.cpuBurst < b.cpuBurst; });
 
