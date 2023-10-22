@@ -95,10 +95,15 @@ void runSJF(queue<Process> &processes)
         processes.pop();
     }
 
-    // Sort the processes by burst time in ascending order
     sort(sortedProcesses.begin(), sortedProcesses.end(), [](const Process &a, const Process &b)
-         { return a.cpuBurst < b.cpuBurst; });
-
+     {
+         if (a.cpuBurst == b.cpuBurst)
+         {
+             return a.arrivalTime < b.arrivalTime; // or a.processId < b.processId for a unique ID
+         }
+         return a.cpuBurst < b.cpuBurst;
+     });
+     
     for (const auto &currentProcess : sortedProcesses)
     {
         // If the process arrives after the current time, update the current time
