@@ -2,6 +2,8 @@
 #include <fstream>
 #include <queue>
 #include <vector>
+#include <functional>
+#include <algorithm>
 
 using namespace std;
 
@@ -152,7 +154,76 @@ void runSJF(queue<Process> &processes)
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 }
 
-void runPriority(queue<Process> &processes) {}
+void runPriority(queue<Process> &processes) 
+{
+    int currentTime = 0;
+    int totalWaitingTime = 0;
+    int totalTurnaroundTime = 0;
+    int totalResponseTime = 0;
+    int processesExecuted = 0;
+
+    priority_queue<Process, vector<Process>, function<bool(Process, Process)>> priorityQueue(
+        [](Process a, Process b) { return a.priority > b.priority; }
+    );
+
+    while (!processes.empty() && processesExecuted < 500)
+    {
+        // Check if any new processes have arrived
+        while (!processes.empty() && processes.front().arrivalTime <= currentTime)
+        {
+            priorityQueue.push(processes.front());
+            processes.pop();
+        }
+
+        // If the priority queue is not empty, select the highest priority process
+        if (!priorityQueue.empty())
+        {
+            Process currentProcess = priorityQueue.top();
+            priorityQueue.pop();
+
+            // Update start time, end time, waiting time, and turnaround time for the process
+            currentProcess.startTime = currentTime;
+            currentProcess.endTime = currentTime + currentProcess.cpuBurst;
+            totalWaitingTime += currentTime - currentProcess.arrivalTime;
+            totalTurnaroundTime += currentProcess.endTime - currentProcess.arrivalTime;
+            totalResponseTime += currentProcess.startTime - currentProcess.arrivalTime;
+
+            // Update current time to the end time of the current process
+            currentTime = currentProcess.endTime;
+
+            // Print information about the executed process
+            cout << "Process ID: " << currentProcess.processId
+                 << ", Arrival Time: " << currentProcess.arrivalTime
+                 << ", CPU Burst: " << currentProcess.cpuBurst
+                 << ", Priority: " << currentProcess.priority << endl;
+
+            processesExecuted++;
+        }
+        else
+        {
+            // No processes in the priority queue; increment time
+            currentTime++;
+        }
+    }
+
+    // Calculate and print statistics
+    int totalProcesses = processesExecuted;
+    double throughput = static_cast<double>(totalProcesses) / currentTime;
+    double cpuUtilization = static_cast<double>(totalTurnaroundTime) / currentTime;
+    double avgWaitingTime = static_cast<double>(totalWaitingTime) / totalProcesses;
+    double avgTurnaroundTime = static_cast<double>(totalTurnaroundTime) / totalProcesses;
+    double avgResponseTime = static_cast<double>(totalResponseTime) / totalProcesses;
+
+    cout << "\nStatistics for the Run" << endl;
+    cout << "Number of processes: " << totalProcesses << endl;
+    cout << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    cout << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    cout << "CPU utilization: " << cpuUtilization << endl;
+    cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+}
 
 int main()
 {
