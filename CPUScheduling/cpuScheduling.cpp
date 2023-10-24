@@ -46,7 +46,7 @@ void runFIFO(queue<Process> &processes)
 
         // Update start time, end time, waiting time, and turnaround time for the process
         currentProcess.startTime = currentTime;
-        currentProcess.endTime = currentTime + currentProcess.cpuBurst;
+        currentProcess.endTime = currentProcess.startTime + currentProcess.cpuBurst;
         totalWaitingTime += currentTime - currentProcess.arrivalTime;
         totalTurnaroundTime += currentProcess.endTime - currentProcess.arrivalTime;
         totalResponseTime += currentProcess.startTime - currentProcess.arrivalTime;
@@ -119,7 +119,7 @@ void runSJF(queue<Process> &processes)
 
         // Update start time, end time, waiting time, and turnaround time for the process
         executingProcess.startTime = currentTime;
-        executingProcess.endTime = currentTime + executingProcess.cpuBurst;
+        executingProcess.endTime = executingProcess.startTime + executingProcess.cpuBurst;
         totalWaitingTime += currentTime - executingProcess.arrivalTime;
         totalTurnaroundTime += executingProcess.endTime - executingProcess.arrivalTime;
         totalResponseTime += executingProcess.startTime - executingProcess.arrivalTime;
