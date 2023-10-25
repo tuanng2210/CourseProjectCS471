@@ -154,7 +154,7 @@ void runSJF(queue<Process> &processes)
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 }
 
-void runPriority(queue<Process> &processes) 
+void runPriority(queue<Process> &processes)
 {
     int currentTime = 0;
     int totalWaitingTime = 0;
@@ -163,8 +163,8 @@ void runPriority(queue<Process> &processes)
     int processesExecuted = 0;
 
     priority_queue<Process, vector<Process>, function<bool(Process, Process)>> priorityQueue(
-        [](Process a, Process b) { return a.priority > b.priority; }
-    );
+        [](Process a, Process b)
+        { return a.priority > b.priority; });
 
     while (!processes.empty() && processesExecuted < 500)
     {
@@ -222,7 +222,6 @@ void runPriority(queue<Process> &processes)
     cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
     cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
-
 }
 
 int main()
