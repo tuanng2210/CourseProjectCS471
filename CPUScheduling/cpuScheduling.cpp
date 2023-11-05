@@ -18,13 +18,6 @@ struct Process
     int endTime;
 };
 
-// enum SchedulingType
-// {
-//     FIFO,
-//     SJF,
-//     Priority
-// };
-
 void runFIFO(queue<Process> &processes)
 {
     int currentTime = 0;
@@ -79,6 +72,21 @@ void runFIFO(queue<Process> &processes)
     cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
     cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    ofstream outfile;
+    outfile.open("cpuScheduling.txt");
+
+    outfile << "\nStatistics for the Run" << endl;
+    outfile << "Number of processes: " << totalProcesses << endl;
+    outfile << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    outfile << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    outfile << "CPU utilization: " << cpuUtilization << endl;
+    outfile << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    outfile << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    outfile << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    outfile.close();
+    
 }
 
 void runSJF(queue<Process> &processes)
@@ -152,6 +160,21 @@ void runSJF(queue<Process> &processes)
     cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
     cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    ofstream outfile;
+    outfile.open("cpuScheduling.txt");
+
+    outfile << "\nStatistics for the Run" << endl;
+    outfile << "Number of processes: " << totalProcesses << endl;
+    outfile << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    outfile << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    outfile << "CPU utilization: " << cpuUtilization << endl;
+    outfile << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    outfile << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    outfile << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    outfile.close();
+
 }
 
 void runPriority(queue<Process> &processes)
@@ -222,6 +245,21 @@ void runPriority(queue<Process> &processes)
     cout << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
     cout << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    ofstream outfile;
+    outfile.open("cpuScheduling.txt");
+
+    outfile << "\nStatistics for the Run" << endl;
+    outfile << "Number of processes: " << totalProcesses << endl;
+    outfile << "Total elapsed time: " << currentTime << " CPU burst units" << endl;
+    outfile << "Throughput: " << throughput << " processes per unit of CPU burst time" << endl;
+    outfile << "CPU utilization: " << cpuUtilization << endl;
+    outfile << "Average waiting time: " << avgWaitingTime << " CPU burst units" << endl;
+    outfile << "Average turnaround time: " << avgTurnaroundTime << " CPU burst units" << endl;
+    outfile << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
+
+    outfile.close();
+
 }
 
 int main()
