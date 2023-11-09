@@ -74,7 +74,7 @@ void runFIFO(queue<Process> &processes)
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 
     ofstream outfile;
-    outfile.open("cpuScheduling.txt");
+    outfile.open("fifo.txt");
 
     outfile << "\nStatistics for the Run" << endl;
     outfile << "Number of processes: " << totalProcesses << endl;
@@ -162,7 +162,7 @@ void runSJF(queue<Process> &processes)
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 
     ofstream outfile;
-    outfile.open("cpuScheduling.txt");
+    outfile.open("sjf.txt");
 
     outfile << "\nStatistics for the Run" << endl;
     outfile << "Number of processes: " << totalProcesses << endl;
@@ -247,7 +247,7 @@ void runPriority(queue<Process> &processes)
     cout << "Average response time: " << avgResponseTime << " CPU burst units" << endl;
 
     ofstream outfile;
-    outfile.open("cpuScheduling.txt");
+    outfile.open("priority.txt");
 
     outfile << "\nStatistics for the Run" << endl;
     outfile << "Number of processes: " << totalProcesses << endl;
