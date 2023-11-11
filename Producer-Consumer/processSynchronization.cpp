@@ -35,8 +35,9 @@ void *producer(void *arguments)
         //wait for mutex to appear
         sem_wait(&mutex);
 
+        //add the item to the buffer
         buffer.push_back(theItem);
-        cout << "Item was produced";
+        cout << "Item: " << theItem << " is produced." << endl;
 
         //let go of mutex
         sem_post(&mutex);
@@ -45,13 +46,55 @@ void *producer(void *arguments)
         sem_post(&full);
 
     }
-    printf("Thread is running\n");
-    return NULL;
 }
 
-int main()
+void *consumer(void *arguments)
 {
 
+    while(true)
+    {
+        
+        //wait for an full slot to appear in the buffer
+        sem_wait(&full);
+
+        //wait for mutex to appear
+        sem_wait(&mutex);
+
+        //remove the item from the buffer
+        int item = buffer.back();
+        buffer.push_back(item);
+        cout << "Item: " << item << " is consumed." << endl;
+
+
+        //let go of mutex
+        sem_post(&mutex);
+
+        //change the status of the buffer from full to empty
+        sem_post(&full);
+
+    }
+}
+
+
+
+int main(int argc, char *argv[])
+{
+
+    if(argc != 4)
+    {
+        cout << "Usage " << argv[0] << "|Number of Producers| |Number of Consumers| |Sleep Time|\n";
+        return 1;
+    }
+
+    int numProducers = stoi(argv[1]);
+    int numConsumers = stoi(argv[2]);
+    int sleepTime = stoi(argv[3]);
+
+    sem_init(&empty, 0, bufferSize);
+    sem_init(&full, 0, 0);
+    sem_init(&mutex, 0, 1);
+
+    auto startTime = chrono::high_resolution_clock::now();
     pthread_t threadOne;
 
     // Get Command line arguments
