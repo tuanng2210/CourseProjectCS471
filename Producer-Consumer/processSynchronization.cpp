@@ -77,9 +77,24 @@ void *consumer(void *arguments)
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
 
+    if(argc != 4)
+    {
+        cout << "Usage " << argv[0] << "|Number of Producers| |Number of Consumers| |Sleep Time|\n";
+        return 1;
+    }
+
+    int numProducers = stoi(argv[1]);
+    int numConsumers = stoi(argv[2]);
+    int sleepTime = stoi(argv[3]);
+
+    sem_init(&empty, 0, bufferSize);
+    sem_init(&full, 0, 0);
+    sem_init(&mutex, 0, 1);
+
+    auto startTime = chrono::high_resolution_clock::now();
     pthread_t threadOne;
 
     // Get Command line arguments
