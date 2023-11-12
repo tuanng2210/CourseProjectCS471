@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
-#include <stdio.h>
 #include <semaphore.h>
 #include <vector>
 #include <chrono>
+#include <unistd.h>
 
 using namespace std;
 
@@ -90,24 +90,56 @@ int main(int argc, char *argv[])
     int numConsumers = stoi(argv[2]);
     int sleepTime = stoi(argv[3]);
 
+    //Create semaphores
     sem_init(&empty, 0, bufferSize);
     sem_init(&full, 0, 0);
     sem_init(&mutex, 0, 1);
 
+    //Record start time
     auto startTime = chrono::high_resolution_clock::now();
-    pthread_t threadOne;
 
-    // Get Command line arguments
-    // Initialize buffer
-    // Create Producer Threads
-    // Create Consumer Threads
-    // Sleep
-    // Exit
+    //Make the threads
+    pthread_t producerThreads[numProducers];
+    pthread_t consumerThreads[numConsumers];
 
-    printf("Calling thread\n");
+    for(int i = 0; i < numProducers; i++)
+    {
+        pthread_create(&producerThreads[i], NULL, producer, NULL);
+    }
 
-    //pthread_create(&threadOne, NULL, ThreadFunction, NULL);
+    for(int i = 0; i < numConsumers; i++)
+    {
+        pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+    }
 
+    //this_thread::sleep_for(chrono::milliseconds(sleepTime));
+
+    //Sleep in milliseconds
+    usleep(sleepTime * 1000);
+
+    //Join the threads together
+    for(int i = 0; i < numProducers; i++)
+    {
+        pthread_join(producerThreads[i], NULL);
+    }
+
+    for(int i = 0; i < numConsumers; i++)
+    {
+        pthread_join(consumerThreads[i], NULL);
+    }
+
+    //Record end time
+    auto end_time = chrono::high_resolution_clock::now();
+
+    //Destroy the semaphores
+    sem_destroy(&empty);
+    sem_destroy(&full);
+    sem_destroy(&mutex);
+
+    //Turnaround time
+    auto duration = chrono::duration_cast<chrono::milliseconds> (end_time - startTime);
+
+    cout << "Turnaround time: " << duration.count() << " ms\n";
 
     return 0;
 
