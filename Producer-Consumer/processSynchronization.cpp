@@ -8,17 +8,18 @@
 
 using namespace std;
 
+//Make buffer size
 const int bufferSize = 5;
 
 vector<int> buffer;
 
-sem_t empty;
+sem_t emptySem;
 
 sem_t full;
 
 sem_t mutex;
 
-
+ 
 
 void *producer(void *arguments)
 {
@@ -29,8 +30,8 @@ void *producer(void *arguments)
         //produce a new item
         theItem++;
         
-        //wait for an empty slot to appear in the buffer
-        sem_wait(&empty);
+        //wait for an emptySem slot to appear in the buffer
+        sem_wait(&emptySem);
 
         //wait for mutex to appear
         sem_wait(&mutex);
@@ -42,7 +43,7 @@ void *producer(void *arguments)
         //let go of mutex
         sem_post(&mutex);
 
-        //change the status of the buffer from empty to full
+        //change the status of the buffer from emptySem to full
         sem_post(&full);
 
     }
@@ -62,14 +63,14 @@ void *consumer(void *arguments)
 
         //remove the item from the buffer
         int item = buffer.back();
-        buffer.push_back(item);
+        buffer.pop_back();
         cout << "Item: " << item << " is consumed." << endl;
 
 
         //let go of mutex
         sem_post(&mutex);
 
-        //change the status of the buffer from full to empty
+        //change the status of the buffer from full to emptySem
         sem_post(&full);
 
     }
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
     int sleepTime = stoi(argv[3]);
 
     //Create semaphores
-    sem_init(&empty, 0, bufferSize);
+    sem_init(&emptySem, 0, bufferSize);
     sem_init(&full, 0, 0);
     sem_init(&mutex, 0, 1);
 
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
     auto end_time = chrono::high_resolution_clock::now();
 
     //Destroy the semaphores
-    sem_destroy(&empty);
+    sem_destroy(&emptySem);
     sem_destroy(&full);
     sem_destroy(&mutex);
 
@@ -141,9 +142,12 @@ int main(int argc, char *argv[])
 
     cout << "Turnaround time: " << duration.count() << " ms\n";
 
-    return 0;
-
     ofstream outfile;
     outfile.open("processSynchronization.txt");
+    outfile.close();
+
+    return 0;
+
+    
 
 }
