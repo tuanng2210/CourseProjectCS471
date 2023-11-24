@@ -4,150 +4,145 @@
 #include <semaphore.h>
 #include <vector>
 #include <chrono>
-#include <unistd.h>
+#include <thread>
 
 using namespace std;
 
-//Make buffer size
 const int bufferSize = 5;
 
 vector<int> buffer;
 
 sem_t emptySem;
-
 sem_t full;
-
 sem_t mutex;
-
- 
 
 void *producer(void *arguments)
 {
     int theItem = 0;
 
-    while(true)
+    while (true)
     {
-        //produce a new item
         theItem++;
-        
-        //wait for an emptySem slot to appear in the buffer
-        sem_wait(&emptySem);
 
-        //wait for mutex to appear
+        sem_wait(&emptySem);
         sem_wait(&mutex);
 
-        //add the item to the buffer
         buffer.push_back(theItem);
         cout << "Item: " << theItem << " is produced." << endl;
 
-        //let go of mutex
         sem_post(&mutex);
-
-        //change the status of the buffer from emptySem to full
         sem_post(&full);
-
     }
 }
 
 void *consumer(void *arguments)
 {
-
-    while(true)
+    while (true)
     {
-        
-        //wait for an full slot to appear in the buffer
         sem_wait(&full);
-
-        //wait for mutex to appear
         sem_wait(&mutex);
 
-        //remove the item from the buffer
         int item = buffer.back();
         buffer.pop_back();
         cout << "Item: " << item << " is consumed." << endl;
 
-
-        //let go of mutex
         sem_post(&mutex);
-
-        //change the status of the buffer from full to emptySem
-        sem_post(&full);
-
+        sem_post(&emptySem);
     }
 }
 
-
-
-int main(int argc, char *argv[])
+int main()
 {
-
-    if(argc != 4)
+    ifstream inputFile("Datafile2.txt");
+    if (!inputFile)
     {
-        cout << "Usage " << argv[0] << "|Number of Producers| |Number of Consumers| |Sleep Time|\n";
+        cerr << "Error opening input file.\n";
         return 1;
     }
 
-    int numProducers = stoi(argv[1]);
-    int numConsumers = stoi(argv[2]);
-    int sleepTime = stoi(argv[3]);
+    // Open an output file for results
+    ofstream outputFile("processSynchronization.txt");
+    if (!outputFile)
+    {
+        cerr << "Error opening output file.\n";
+        return 1;
+    }
 
-    //Create semaphores
+    int testCases, numProducers, numConsumers, sleepTime;
+
+    // Create semaphores
     sem_init(&emptySem, 0, bufferSize);
     sem_init(&full, 0, 0);
     sem_init(&mutex, 0, 1);
 
-    //Record start time
+    // Record start time
     auto startTime = chrono::high_resolution_clock::now();
 
-    //Make the threads
-    pthread_t producerThreads[numProducers];
-    pthread_t consumerThreads[numConsumers];
+    string header;
+    getline(inputFile, header);
 
-    for(int i = 0; i < numProducers; i++)
+    // Read the number of test cases from the file
+    inputFile >> testCases;
+
+    for (int testCase = 0; testCase < testCases; testCase++)
     {
-        pthread_create(&producerThreads[i], NULL, producer, NULL);
+        // Read input parameters for each test case
+        inputFile >> numProducers >> numConsumers;
+
+        cout << "Test Case: " << testCase + 1 << "\n";
+        cout << "Producers: " << numProducers << "\n";
+        cout << "Consumers: " << numConsumers << "\n";
+
+        // Create threads for producers and consumers
+        pthread_t producerThreads[numProducers];
+        pthread_t consumerThreads[numConsumers];
+
+        for (int i = 0; i < numProducers; i++)
+        {
+            pthread_create(&producerThreads[i], NULL, producer, NULL);
+        }
+
+        for (int i = 0; i < numConsumers; i++)
+        {
+            pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+        }
+
+        // Allow threads to run for a certain sleep time
+        cout << "Enter sleep time (in milliseconds) for Test Case " << testCase + 1 << ": ";
+        cin >> sleepTime;
+
+        this_thread::sleep_for(chrono::milliseconds(sleepTime));
+
+        // Join the threads together
+        for (int i = 0; i < numProducers; i++)
+        {
+            pthread_cancel(producerThreads[i]);
+        }
+
+        for (int i = 0; i < numConsumers; i++)
+        {
+            pthread_cancel(consumerThreads[i]);
+        }
     }
 
-    for(int i = 0; i < numConsumers; i++)
-    {
-        pthread_create(&consumerThreads[i], NULL, consumer, NULL);
-    }
-
-    //this_thread::sleep_for(chrono::milliseconds(sleepTime));
-
-    //Sleep in milliseconds
-    usleep(sleepTime * 1000);
-
-    //Join the threads together
-    for(int i = 0; i < numProducers; i++)
-    {
-        pthread_join(producerThreads[i], NULL);
-    }
-
-    for(int i = 0; i < numConsumers; i++)
-    {
-        pthread_join(consumerThreads[i], NULL);
-    }
-
-    //Record end time
+    // Record end time
     auto end_time = chrono::high_resolution_clock::now();
 
-    //Destroy the semaphores
+    // Destroy the semaphores
     sem_destroy(&emptySem);
     sem_destroy(&full);
     sem_destroy(&mutex);
 
-    //Turnaround time
-    auto duration = chrono::duration_cast<chrono::milliseconds> (end_time - startTime);
+    // Turnaround time
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
 
-    cout << "Turnaround time: " << duration.count() << " ms\n";
+    // Print the turnaround time to the console and write to the output file
+    cout << "Overall Turnaround Time: " << duration.count() << " ms\n";
+    outputFile << "Overall Turnaround Time: " << duration.count() << " ms\n";
 
-    ofstream outfile;
-    outfile.open("processSynchronization.txt");
-    outfile.close();
+    // Close files
+    inputFile.close();
+    outputFile.close();
 
     return 0;
-
-    
-
 }

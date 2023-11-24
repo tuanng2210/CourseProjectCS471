@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/cs_sbrya025/cs571/courseProject/CourseProjectCS471",
-      "program": "/home/cs_sbrya025/cs571/courseProject/CourseProjectCS471/build/Debug/outDebug",
+      "cwd": "/home/cs_sbrya025/cs571/courseProject/CourseProjectCS471/Producer-Consumer",
+      "program": "/home/cs_sbrya025/cs571/courseProject/CourseProjectCS471/Producer-Consumer/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
