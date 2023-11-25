@@ -48,3 +48,6 @@ install_manifest.txt
 Thumbs.db
 
 cpuScheduling
+
+*.txt
+
