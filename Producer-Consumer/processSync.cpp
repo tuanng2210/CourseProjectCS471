@@ -1,155 +1,134 @@
 #include <iostream>
-#include <fstream>
-#include <pthread.h>
 #include <vector>
-#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <chrono>
-#include <ctime>
-#include <unistd.h>
+#include <cstdlib>
 
-using namespace std;
+#define BUFFER_SIZE 5
+#define TRUE 1
 
-const int bufferSize = 5;
+std::mutex mtx;
+std::condition_variable empty, full;
 
-vector<int> buffer;
-queue<int> dataQueue;
-volatile bool terminateThreads = false;
-pthread_mutex_t printMutex;
-ofstream outFile;  // Declare a single file stream
+int buffer[BUFFER_SIZE];
+int in = 0, out = 0;
 
-pthread_mutex_t TheMutex;
-pthread_cond_t notFull, notEmpty;
+void insert_item(int item) {
+    std::unique_lock<std::mutex> lock(mtx);
 
-void *producer(void *arguments)
-{
-    int theItem = 0;
-
-    while (!terminateThreads)
-    {
-        theItem++;
-
-        pthread_mutex_lock(&TheMutex);
-        while (dataQueue.size() == bufferSize)
-        {
-            pthread_cond_wait(&notFull, &TheMutex);
-        }
-
-        dataQueue.push(theItem);
-
-        // Use mutex for synchronized printing
-        pthread_mutex_lock(&printMutex);
-        outFile << "Item: " << theItem << " is produced." << endl;
-        pthread_mutex_unlock(&printMutex);
-
-        pthread_mutex_unlock(&TheMutex);
-        pthread_cond_signal(&notEmpty);
+    // Wait until there is space in the buffer
+    while ((in + 1) % BUFFER_SIZE == out) {
+        full.wait(lock);
     }
 
-    pthread_exit(NULL);
+    buffer[in] = item;
+    in = (in + 1) % BUFFER_SIZE;
+
+    // Signal that the buffer is not empty anymore
+    empty.notify_all();
+
+    // Print debug information
+    std::cout << "Insert_item inserted item " << item << " at position " << in - 1 << " [";
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i == in - 1) std::cout << buffer[i];
+        else std::cout << ((i == 0) ? "empty" : "," + std::to_string(buffer[i]));
+    }
+    std::cout << "] in = " << in << ", out = " << out << std::endl;
 }
 
-void *consumer(void *arguments)
-{
-    while (!terminateThreads)
-    {
-        pthread_mutex_lock(&TheMutex);
-        while (dataQueue.empty())
-        {
-            pthread_cond_wait(&notEmpty, &TheMutex);
-        }
+int remove_item() {
+    std::unique_lock<std::mutex> lock(mtx);
 
-        int item = dataQueue.front();
-        dataQueue.pop();
-
-        // Use mutex for synchronized printing
-        pthread_mutex_lock(&printMutex);
-        outFile << "Item: " << item << " is consumed." << endl;
-        pthread_mutex_unlock(&printMutex);
-
-        pthread_mutex_unlock(&TheMutex);
-        pthread_cond_signal(&notFull);
+    // Wait until there is an item in the buffer
+    while (in == out) {
+        empty.wait(lock);
     }
 
-    pthread_exit(NULL);
+    int item = buffer[out];
+    out = (out + 1) % BUFFER_SIZE;
+
+    // Signal that the buffer is not full anymore
+    full.notify_all();
+
+    // Print debug information
+    std::cout << "Remove_item removed item " << item << " at position " << out - 1 << " [";
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i == out - 1) std::cout << "empty";
+        else std::cout << ((i == 0) ? std::to_string(buffer[i]) : "," + std::to_string(buffer[i]));
+    }
+    std::cout << "] in = " << in << ", out = " << out << std::endl;
+
+    return item;
 }
 
-int main()
-{
-    // Initialize mutex and condition variables
-    pthread_mutex_init(&TheMutex, NULL);
-    pthread_cond_init(&notFull, NULL);
-    pthread_cond_init(&notEmpty, NULL);
-    pthread_mutex_init(&printMutex, NULL);
+void producer(int id) {
+    while (TRUE) {
+        // Generate random sleep time
+        int sleep_time = (rand() % 3) + 1;
+        std::cout << "Producer thread " << id << " sleeping for " << sleep_time << " seconds\n";
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_time));
 
-    // Open the output file in write mode to clear previous content
-    outFile.open("output.txt");
+        // Generate a random product
+        int item = rand();
 
-    // Test cases
-    int testCases[] = {1, 4, 16};
-    int numProducers[] = {1, 4, 16};
-    int numConsumers[] = {1, 2, 4};
+        // Insert the item into the buffer
+        insert_item(item);
+    }
+}
 
-    for (int i = 0; i < 3; i++)
-    {
-        // Set the termination flag
-        terminateThreads = false;
+void consumer(int id) {
+    while (TRUE) {
+        // Generate random sleep time
+        int sleep_time = (rand() % 3) + 1;
+        std::cout << "Consumer thread " << id << " sleeping for " << sleep_time << " seconds\n";
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_time));
 
-        // Create threads for producers and consumers
-        pthread_t producerThreads[numProducers[i]];
-        pthread_t consumerThreads[numConsumers[i]];
+        // Remove an item from the buffer
+        int item = remove_item();
+    }
+}
 
-        // Use mutex for synchronized printing
-        pthread_mutex_lock(&printMutex);
-        outFile << "Test Case: " << i + 1 << endl;
-        outFile << "Number of Producers: " << numProducers[i] << endl;
-        outFile << "Number of Consumers: " << numConsumers[i] << endl;
-        pthread_mutex_unlock(&printMutex);
-
-        auto startTime = chrono::high_resolution_clock::now();
-
-        for (int j = 0; j < numProducers[i]; j++)
-        {
-            pthread_create(&producerThreads[j], NULL, producer, NULL);
-        }
-
-        for (int j = 0; j < numConsumers[i]; j++)
-        {
-            pthread_create(&consumerThreads[j], NULL, consumer, NULL);
-        }
-
-        // Allow threads to run for a certain sleep time
-        usleep(5000000); // Sleep for 5000 milliseconds (5 seconds)
-
-        // Set the termination flag
-        terminateThreads = true;
-
-        // Join the threads together
-        for (int j = 0; j < numProducers[i]; j++)
-        {
-            pthread_join(producerThreads[j], NULL);
-        }
-
-        for (int j = 0; j < numConsumers[i]; j++)
-        {
-            pthread_join(consumerThreads[j], NULL);
-        }
-
-        auto endTime = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
-
-        // Use mutex for synchronized printing
-        pthread_mutex_lock(&printMutex);
-        pthread_mutex_unlock(&printMutex);
+int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <runtime> <num_producers> <num_consumers>\n";
+        return -1;
     }
 
-    // Destroy mutex and condition variables
-    pthread_mutex_destroy(&TheMutex);
-    pthread_cond_destroy(&notFull);
-    pthread_cond_destroy(&notEmpty);
-    pthread_mutex_destroy(&printMutex);
+    int runtime = std::atoi(argv[1]);
+    int num_producers = std::atoi(argv[2]);
+    int num_consumers = std::atoi(argv[3]);
 
-    // Close the output file
-    outFile.close();
+    std::cout << "Main thread beginning\n";
+
+    // Create producer threads
+    std::vector<std::thread> producer_threads;
+    for (int i = 0; i < num_producers; i++) {
+        std::cout << "Creating producer thread with id " << i << std::endl;
+        producer_threads.emplace_back(producer, i);
+    }
+
+    // Create consumer threads
+    std::vector<std::thread> consumer_threads;
+    for (int i = 0; i < num_consumers; i++) {
+        std::cout << "Creating consumer thread with id " << i << std::endl;
+        consumer_threads.emplace_back(consumer, i);
+    }
+
+    std::cout << "Main thread sleeping for " << runtime << " seconds\n";
+    std::this_thread::sleep_for(std::chrono::seconds(runtime));
+
+    std::cout << "Main thread exiting\n";
+
+    // Join threads
+    for (auto& thread : producer_threads) {
+        thread.join();
+    }
+
+    for (auto& thread : consumer_threads) {
+        thread.join();
+    }
 
     return 0;
 }
