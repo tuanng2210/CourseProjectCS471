@@ -14,7 +14,7 @@ vector<int> buffer;
 
 sem_t emptySem;
 sem_t full;
-sem_t mutex;
+sem_t theMutex;
 
 void *producer(void *arguments)
 {
@@ -25,12 +25,12 @@ void *producer(void *arguments)
         theItem++;
 
         sem_wait(&emptySem);
-        sem_wait(&mutex);
+        sem_wait(&theMutex);
 
         buffer.push_back(theItem);
         cout << "Item: " << theItem << " is produced." << endl;
 
-        sem_post(&mutex);
+        sem_post(&theMutex);
         sem_post(&full);
     }
 }
@@ -40,13 +40,13 @@ void *consumer(void *arguments)
     while (true)
     {
         sem_wait(&full);
-        sem_wait(&mutex);
+        sem_wait(&theMutex);
 
         int item = buffer.back();
         buffer.pop_back();
         cout << "Item: " << item << " is consumed." << endl;
 
-        sem_post(&mutex);
+        sem_post(&theMutex);
         sem_post(&emptySem);
     }
 }
@@ -73,7 +73,7 @@ int main()
     // Create semaphores
     sem_init(&emptySem, 0, bufferSize);
     sem_init(&full, 0, 0);
-    sem_init(&mutex, 0, 1);
+    sem_init(&theMutex, 0, 1);
 
     // Record start time
     auto startTime = chrono::high_resolution_clock::now();
@@ -131,7 +131,7 @@ int main()
     // Destroy the semaphores
     sem_destroy(&emptySem);
     sem_destroy(&full);
-    sem_destroy(&mutex);
+    sem_destroy(&theMutex);
 
     // Turnaround time
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
