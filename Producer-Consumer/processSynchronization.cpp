@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 
+
 using namespace std;
 
 const int bufferSize = 5;
@@ -90,9 +91,9 @@ int main()
         // Read the input parameters from the file
         while (inputFile >> sleepTime >> numProducers >> numConsumers)
         {
-            cout << "Sleep Time: " << sleepTime << " milliseconds\n";
-            cout << "Producers: " << numProducers << "\n";
-            cout << "Consumers: " << numConsumers << "\n";
+            // cout << "Sleep Time: " << sleepTime << " milliseconds\n";
+            // cout << "Producers: " << numProducers << "\n";
+            // cout << "Consumers: " << numConsumers << "\n";
 
             // Create threads for producers and consumers
             pthread_t producerThreads[numProducers];
@@ -136,8 +137,8 @@ int main()
             auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
 
             // Print the turnaround time to the console and write to the output file
-            // cout << "Overall Turnaround Time for " << inputFileName << ": " << duration.count() << " ms\n";
-            outputFile <<  "Overall Turnaround Time: " << duration.count() << " ms\n";
+            outputFile << " SleepTime Producers Consumers Turnaround" << endl;
+            outputFile << sleepTime << numProducers << numConsumers << duration.count() << endl;
         }
 
         // Destroy the semaphores
