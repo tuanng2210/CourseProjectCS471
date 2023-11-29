@@ -89,6 +89,7 @@ int main()
         string header;
         getline(inputFile, header);
         // Read the input parameters from the file
+        outputFile << " SleepTime Producers Consumers Turnaround" << endl;
         while (inputFile >> sleepTime >> numProducers >> numConsumers)
         {
             // cout << "Sleep Time: " << sleepTime << " milliseconds\n";
@@ -137,7 +138,7 @@ int main()
             auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
 
             // Print the turnaround time to the console and write to the output file
-            outputFile << " SleepTime Producers Consumers Turnaround" << endl;
+            // outputFile << " SleepTime Producers Consumers Turnaround" << endl;
             outputFile << setw(6) << sleepTime << setw(10) << numProducers << setw(10) << numConsumers << setw(11) << duration.count() << endl;
         }
 

@@ -1,24 +1,13 @@
  SleepTime Producers Consumers Turnaround
      6         1         1          6
- SleepTime Producers Consumers Turnaround
      6         4         1          6
- SleepTime Producers Consumers Turnaround
-     6        16         1          6
- SleepTime Producers Consumers Turnaround
-     6         1         2         38
- SleepTime Producers Consumers Turnaround
+     6        16         1          7
+     6         1         2          6
      6         4         2          6
- SleepTime Producers Consumers Turnaround
      6        16         2          7
- SleepTime Producers Consumers Turnaround
      6         1         4          6
- SleepTime Producers Consumers Turnaround
      6         4         4          6
- SleepTime Producers Consumers Turnaround
      6        16         4          7
- SleepTime Producers Consumers Turnaround
-     6         1        16         66
- SleepTime Producers Consumers Turnaround
-     6         4        16          7
- SleepTime Producers Consumers Turnaround
+     6         1        16          7
+     6         4        16         29
      6        16        16          8
