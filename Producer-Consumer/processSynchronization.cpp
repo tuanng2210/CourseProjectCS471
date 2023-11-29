@@ -53,21 +53,6 @@ void *consumer(void *arguments)
 
 int main()
 {
-    // ifstream inputFile("Datafile2.txt");
-    // if (!inputFile)
-    // {
-    //     cerr << "Error opening input file.\n";
-    //     return 1;
-    // }
-
-    // // Open an output file for results
-    // ofstream outputFile("processSynchronization.txt");
-    // if (!outputFile)
-    // {
-    //     cerr << "Error opening output file.\n";
-    //     return 1;
-    // }
-    
     for (int fileIndex = 1; fileIndex <= 3; fileIndex++)
     {
         // Form the input file name
@@ -161,3 +146,4 @@ int main()
 
         return 0;
     }
+}
