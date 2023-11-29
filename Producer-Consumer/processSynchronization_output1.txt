@@ -1,1 +1,0 @@
-Overall Turnaround Time: 50 ms
