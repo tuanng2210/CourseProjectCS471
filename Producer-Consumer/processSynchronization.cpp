@@ -233,8 +233,9 @@ int main()
         sem_init(&theMutex, 0, 1);
 
         // Record start time
-        auto startTime = chrono::high_resolution_clock::now();
 
+        string header;
+        getline(inputFile, header);
         // Read the input parameters from the file
         while (inputFile >> sleepTime >> numProducers >> numConsumers)
         {
@@ -249,7 +250,7 @@ int main()
             // Create arguments for producer and consumer threads
             int producerArgs[numProducers];
             int consumerArgs[numConsumers];
-
+            auto startTime = chrono::high_resolution_clock::now();
             // Create and start producer threads
             for (int i = 0; i < numProducers; i++)
             {
@@ -277,22 +278,21 @@ int main()
             {
                 pthread_cancel(consumerThreads[i]);
             }
-        }
 
-        // Record end time
-        auto end_time = chrono::high_resolution_clock::now();
+            // Record end time
+            auto end_time = chrono::high_resolution_clock::now();
+            // Turnaround time
+            auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
+
+            // Print the turnaround time to the console and write to the output file
+            // cout << "Overall Turnaround Time for " << inputFileName << ": " << duration.count() << " ms\n";
+            outputFile <<  "Overall Turnaround Time: " << duration.count() << " ms\n";
+        }
 
         // Destroy the semaphores
         sem_destroy(&emptySem);
         sem_destroy(&full);
         sem_destroy(&theMutex);
-
-        // Turnaround time
-        auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
-
-        // Print the turnaround time to the console and write to the output file
-        cout << "Overall Turnaround Time for " << inputFileName << ": " << duration.count() << " ms\n";
-        outputFile << "Overall Turnaround Time: " << duration.count() << " ms\n";
 
         // Close files
         inputFile.close();
