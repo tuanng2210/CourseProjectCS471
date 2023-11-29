@@ -5,7 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
-
+#include <iomanip>
 
 using namespace std;
 
@@ -138,7 +138,7 @@ int main()
 
             // Print the turnaround time to the console and write to the output file
             outputFile << " SleepTime Producers Consumers Turnaround" << endl;
-            outputFile << sleepTime << numProducers << numConsumers << duration.count() << endl;
+            outputFile << setw(6) << sleepTime << setw(10) << numProducers << setw(10) << numConsumers << setw(11) << duration.count() << endl;
         }
 
         // Destroy the semaphores
