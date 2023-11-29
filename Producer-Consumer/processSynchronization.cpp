@@ -53,99 +53,111 @@ void *consumer(void *arguments)
 
 int main()
 {
-    ifstream inputFile("Datafile2.txt");
-    if (!inputFile)
+    // ifstream inputFile("Datafile2.txt");
+    // if (!inputFile)
+    // {
+    //     cerr << "Error opening input file.\n";
+    //     return 1;
+    // }
+
+    // // Open an output file for results
+    // ofstream outputFile("processSynchronization.txt");
+    // if (!outputFile)
+    // {
+    //     cerr << "Error opening output file.\n";
+    //     return 1;
+    // }
+    
+    for (int fileIndex = 1; fileIndex <= 3; fileIndex++)
     {
-        cerr << "Error opening input file.\n";
-        return 1;
+        // Form the input file name
+        string inputFileName = "SleepTime" + to_string(fileIndex) + ".txt";
+
+        ifstream inputFile(inputFileName);
+        if (!inputFile)
+        {
+            cerr << "Error opening input file: " << inputFileName << "\n";
+            return 1;
+        }
+
+        // Form the output file name
+        string outputFileName = "processSynchronization_output" + to_string(fileIndex) + ".txt";
+
+        // Open an output file for results
+        ofstream outputFile(outputFileName);
+        if (!outputFile)
+        {
+            cerr << "Error opening output file: " << outputFileName << "\n";
+            return 1;
+        }
+
+        // int testCases, numProducers, numConsumers, sleepTime;
+        int sleepTime, numProducers, numConsumers;
+
+        // Create semaphores
+        sem_init(&emptySem, 0, bufferSize);
+        sem_init(&full, 0, 0);
+        sem_init(&theMutex, 0, 1);
+
+        // Record start time
+        auto startTime = chrono::high_resolution_clock::now();
+
+        string header;
+        getline(inputFile, header);
+
+        while (inputFile >> sleepTime >> numProducers >> numConsumers)
+        {
+
+            cout << "Sleep Time: " << sleepTime << " milliseconds\n";
+            cout << "Producers: " << numProducers << "\n";
+            cout << "Consumers: " << numConsumers << "\n";
+
+            // Create threads for producers and consumers
+            pthread_t producerThreads[numProducers];
+            pthread_t consumerThreads[numConsumers];
+
+            for (int i = 0; i < numProducers; i++)
+            {
+                pthread_create(&producerThreads[i], NULL, producer, NULL);
+            }
+
+            for (int i = 0; i < numConsumers; i++)
+            {
+                pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+            }
+
+            this_thread::sleep_for(chrono::milliseconds(sleepTime));
+
+            // Join the threads together
+            for (int i = 0; i < numProducers; i++)
+            {
+                pthread_cancel(producerThreads[i]);
+            }
+
+            for (int i = 0; i < numConsumers; i++)
+            {
+                pthread_cancel(consumerThreads[i]);
+            }
+        }
+
+        // Record end time
+        auto end_time = chrono::high_resolution_clock::now();
+
+        // Destroy the semaphores
+        sem_destroy(&emptySem);
+        sem_destroy(&full);
+        sem_destroy(&theMutex);
+
+        // Turnaround time
+        auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
+
+        // Print the turnaround time to the console and write to the output file
+        cout << "Overall Turnaround Time: " << duration.count() << " ms\n";
+        outputFile << "Overall Turnaround Time: " << duration.count() << " ms\n";
+
+        // Close files
+        inputFile.close();
+        outputFile.close();
+
+        return 0;
     }
-
-    // Open an output file for results
-    ofstream outputFile("processSynchronization.txt");
-    if (!outputFile)
-    {
-        cerr << "Error opening output file.\n";
-        return 1;
-    }
-
-    int testCases, numProducers, numConsumers, sleepTime;
-
-    // Create semaphores
-    sem_init(&emptySem, 0, bufferSize);
-    sem_init(&full, 0, 0);
-    sem_init(&theMutex, 0, 1);
-
-    // Record start time
-    auto startTime = chrono::high_resolution_clock::now();
-
-    string header;
-    getline(inputFile, header);
-
-    // Read the number of test cases from the file
-    inputFile >> testCases;
-
-    for (int testCase = 0; testCase < testCases; testCase++)
-    {
-        // Read input parameters for each test case
-        inputFile >> numProducers >> numConsumers;
-
-        cout << "Test Case: " << testCase + 1 << "\n";
-        cout << "Producers: " << numProducers << "\n";
-        cout << "Consumers: " << numConsumers << "\n";
-
-        // Create threads for producers and consumers
-        pthread_t producerThreads[numProducers];
-        pthread_t consumerThreads[numConsumers];
-
-        for (int i = 0; i < numProducers; i++)
-        {
-            pthread_create(&producerThreads[i], NULL, producer, NULL);
-        }
-
-        for (int i = 0; i < numConsumers; i++)
-        {
-            pthread_create(&consumerThreads[i], NULL, consumer, NULL);
-        }
-
-        // Allow threads to run for a certain sleep time
-        cout << "Enter sleep time (in milliseconds) for Test Case " << testCase + 1 << ": ";
-        cin >> sleepTime;
-
-        this_thread::sleep_for(chrono::milliseconds(sleepTime));
-
-        // Join the threads together
-        for (int i = 0; i < numProducers; i++)
-        {
-            pthread_cancel(producerThreads[i]);
-        }
-
-        for (int i = 0; i < numConsumers; i++)
-        {
-            pthread_cancel(consumerThreads[i]);
-        }
-    }
-
-    // Record end time
-    auto end_time = chrono::high_resolution_clock::now();
-
-    // Destroy the semaphores
-    sem_destroy(&emptySem);
-    sem_destroy(&full);
-    sem_destroy(&theMutex);
-
-    // Turnaround time
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - startTime);
-
-    // Print the turnaround time to the console and write to the output file
-    cout << "Overall Turnaround Time: " << duration.count() << " ms\n";
-    outputFile << "Overall Turnaround Time: " << duration.count() << " ms\n";
-
-    // Close files
-    inputFile.close();
-    outputFile.close();
-
-    return 0;
-}
-
-
-
