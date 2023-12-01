@@ -1,28 +1,43 @@
+# CS 471/571 - Problem 1
+
+## Authors
+
+Tuan Nguyen and Shawn Bryant
+
+## Description
+
 This C++ program simulates three different CPU scheduling algorithms: First-Come-First-Serve (FIFO), Shortest Job First (SJF), and Priority Scheduling. The program reads process information from an input file, performs scheduling based on the selected algorithm, and outputs the results, including statistics, to corresponding output files.
 
-Program Structure
-The program consists of the following components:
+## Input File
 
-Struct Process: Represents a process with attributes such as process ID, arrival time, CPU burst, priority, remaining burst time (for SJF), start time, and end time.
+The program reads in the process information from a text file called "Datafile1.txt" which contains 500 processes which all have arrival time, cpu burst length and priority.
 
-Functions for Each Scheduling Algorithm:
+## Compiling the program
 
-runFIFO(queue<Process> &processes): Implements FIFO scheduling.
-runSJF(queue<Process> &processes): Implements SJF scheduling.
-runPriority(queue<Process> &processes): Implements Priority Scheduling.
+ Starting from the source code, the program can be compiled by using the following command:
+ g++ cpuScheduling.cpp -o cpuSched -std=c++11 
 
-Main Function:
-Reads process information from an input file ("Datafile1.txt").
-Prompts the user to choose a scheduling algorithm.
-Calls the corresponding scheduling function.
-Output:
+## Running the program
 
-The program outputs scheduling results and statistics to separate text files (fifo.txt, sjf.txt, priority.txt).
+The program can be run in the terminal using the following commmand:
+./cpuScheduling
 
+## Output
 
-Steps to run the CPUScheduling Project:
- 1. Open terminal
- 2. cd CPUScheduling
- 3. Run the command in terminal : g++ cpuScheduling.cpp -o cpuSched -std=c++11  
- 4. Run ./cpuSched
- 5. Select type of Scheduling Algorithm
+The output files have the following structure "[ Scheduling Type ].txt"
+
+fifo.txt
+priority.txt
+sjf.txt
+
+Each output file will have the following contents:
+
+## Result's summary and explanation
+
+The waiting time, turnaround time, and response time for priority and first in first out were pretty similar becuase of the fact that the only two real differences in those algorithms is the fact that priority is involved and preemption. Shortest job first however, had some very clear differences becuase it is being resorted based off of each process's size. Given the fact that the turnaround time, waiting time, and response time are all affected by the order of processes in a group, it comes to no surprise that the difference between sjf and fifo and priority were magnified through those three statistics.
+
+throughput = totalProcesses / current Time
+cpu Utilization = total Turnaround Time / current Time
+average Waiting Time = total Waiting Time / total Processes
+average Turnaround Time = total Turnaround Time / total Processes
+average Response Time = total Response Time / total Processes
