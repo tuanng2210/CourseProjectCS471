@@ -18,3 +18,11 @@ Calls the corresponding scheduling function.
 Output:
 
 The program outputs scheduling results and statistics to separate text files (fifo.txt, sjf.txt, priority.txt).
+
+
+Steps to run the CPUScheduling Project:
+ 1. Open terminal
+ 2. cd CPUScheduling
+ 3. Run the command in terminal : g++ cpuScheduling.cpp -o cpuSched -std=c++11  
+ 4. Run ./cpuSched
+ 5. Select type of Scheduling Algorithm
