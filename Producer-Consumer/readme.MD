@@ -15,7 +15,7 @@ The program can read in one of three files being one for each sleep time. The in
 ## Compiling the program
 
  Starting from the source code, the program can be compiled by using the following command:
- g++ -std=c++2a -o process processSync.cpp -lpthread
+ g++ -std=c++2a -o process processSynchronization.cpp -lpthread
 
  ## Running the program
 
